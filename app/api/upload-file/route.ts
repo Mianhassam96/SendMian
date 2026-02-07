@@ -36,26 +36,9 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const publicUrl = `${baseUrl}/uploads/${filename}`
 
-    // Try to store in database (optional)
-    try {
-      const { db } = await import('@/lib/db')
-      if (db) {
-        await db.file.create({
-          data: {
-            messageId: `local-${fileId}`,
-            roomId: 'public',
-            filename: filename,
-            originalName: file.name,
-            size: file.size,
-            mimeType: file.type || 'application/octet-stream',
-            url: publicUrl,
-            key: fileId,
-          }
-        })
-      }
-    } catch (dbError) {
-      console.log('Database not available, file uploaded without metadata storage')
-    }
+    // Note: Database storage removed for Vercel deployment
+    // Files are stored in /tmp on Vercel (temporary storage)
+    // For production, consider using cloud storage (S3, Cloudinary, etc.)
 
     return NextResponse.json({
       success: true,

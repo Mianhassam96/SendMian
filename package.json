@@ -6,11 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "prisma generate || echo 'Prisma generation skipped'",
-    "db:push": "prisma db push",
-    "db:generate": "prisma generate",
-    "db:studio": "prisma studio"
+    "lint": "next lint"
   },
   "dependencies": {
     "next": "14.2.0",
@@ -31,8 +27,6 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "14.2.0",
-    "prisma": "^5.10.0",
-    "@prisma/client": "^5.10.0"
+    "eslint-config-next": "14.2.0"
   }
 }
