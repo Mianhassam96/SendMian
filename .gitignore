@@ -23,8 +23,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # Local env files
-.env*.local
 .env
+.env*.local
+.env.production
 
 # Vercel
 .vercel
@@ -35,3 +36,7 @@ next-env.d.ts
 
 # Prisma
 /prisma/migrations
+
+# Uploads (don't commit uploaded files)
+/public/uploads/*
+!/public/uploads/.gitkeep

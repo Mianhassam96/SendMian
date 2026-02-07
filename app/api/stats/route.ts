@@ -4,6 +4,10 @@ import { db } from '@/lib/db'
 export async function GET() {
   try {
     // Check if database is available
+    if (!db) {
+      throw new Error('Database not configured')
+    }
+    
     await db.$connect()
     
     const totalFiles = await db.file.count()

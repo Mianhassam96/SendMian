@@ -9,7 +9,7 @@ SendMian is a modern, elegant web application for instant file sharing. Upload i
 - **Multiple File Types**: Support for images, videos, PDFs, RTF, and documents
 - **No Size Limits**: Upload files of any size
 - **Public Links**: Get direct shareable links that work anywhere, anytime
-- **File Preview**: View images and videos directly in the browser
+- **File Preview**: View images and videos directly in the browser with full-screen modal
 - **One-Click Sharing**: Copy links to clipboard or use native sharing
 - **Secure Storage**: Files stored securely with enterprise-grade infrastructure
 - **Modern UI**: Beautiful, responsive design that works on all devices
@@ -25,6 +25,8 @@ SendMian is a modern, elegant web application for instant file sharing. Upload i
 - **Icons**: Lucide React
 
 ## 📦 Quick Start
+
+### Local Development
 
 1. **Clone the repository**:
    ```bash
@@ -42,7 +44,7 @@ SendMian is a modern, elegant web application for instant file sharing. Upload i
    cp .env.example .env
    ```
    
-   Fill in your database URL if you want to use database storage.
+   Edit `.env` and fill in your database URL if you want to use database storage (optional).
 
 4. **Start the development server**:
    ```bash
@@ -59,29 +61,120 @@ Create a `.env` file with the following variables (optional):
 # Database (Optional - app works without it)
 DATABASE_URL="postgresql://username:password@localhost:5432/sendmian"
 
-# App URL
+# App URL (update for production)
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### Deploy to GitHub
 
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Add environment variables in Vercel dashboard (optional)
-4. Deploy
+1. **Initialize Git repository** (if not already done):
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit: SendMian file sharing app"
+   ```
 
-### Manual Deployment
+2. **Create a new repository on GitHub**:
+   - Go to [github.com/new](https://github.com/new)
+   - Name it "SendMian" or your preferred name
+   - Don't initialize with README (we already have one)
+   - Click "Create repository"
 
-1. Build the application:
+3. **Push to GitHub**:
+   ```bash
+   git remote add origin https://github.com/YOUR_USERNAME/SendMian.git
+   git branch -M main
+   git push -u origin main
+   ```
+
+### Deploy to Vercel (Recommended)
+
+Vercel is the easiest way to deploy Next.js applications:
+
+1. **Sign up for Vercel**:
+   - Go to [vercel.com](https://vercel.com)
+   - Sign up with your GitHub account
+
+2. **Import your repository**:
+   - Click "Add New Project"
+   - Select your SendMian repository
+   - Vercel will auto-detect Next.js settings
+
+3. **Configure environment variables** (optional):
+   - Add `DATABASE_URL` if using a database
+   - Add `NEXT_PUBLIC_APP_URL` with your Vercel domain (e.g., `https://sendmian.vercel.app`)
+
+4. **Deploy**:
+   - Click "Deploy"
+   - Wait for build to complete
+   - Your app will be live at `https://your-project.vercel.app`
+
+5. **Custom domain** (optional):
+   - Go to Project Settings → Domains
+   - Add your custom domain
+   - Follow DNS configuration instructions
+
+### Deploy to Netlify
+
+1. **Sign up for Netlify**:
+   - Go to [netlify.com](https://netlify.com)
+   - Sign up with your GitHub account
+
+2. **Import repository**:
+   - Click "Add new site" → "Import an existing project"
+   - Select your SendMian repository
+
+3. **Configure build settings**:
+   - Build command: `npm run build`
+   - Publish directory: `.next`
+   - Add environment variables if needed
+
+4. **Deploy**:
+   - Click "Deploy site"
+   - Your app will be live at `https://your-site.netlify.app`
+
+### Manual Deployment (VPS/Server)
+
+1. **Build the application**:
    ```bash
    npm run build
    ```
 
-2. Start the production server:
+2. **Start the production server**:
    ```bash
    npm start
+   ```
+
+3. **Use PM2 for process management** (recommended):
+   ```bash
+   npm install -g pm2
+   pm2 start npm --name "sendmian" -- start
+   pm2 save
+   pm2 startup
+   ```
+
+4. **Configure Nginx as reverse proxy**:
+   ```nginx
+   server {
+       listen 80;
+       server_name yourdomain.com;
+
+       location / {
+           proxy_pass http://localhost:3000;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+       }
+   }
+   ```
+
+5. **Set up SSL with Let's Encrypt**:
+   ```bash
+   sudo certbot --nginx -d yourdomain.com
    ```
 
 ## 📁 Project Structure

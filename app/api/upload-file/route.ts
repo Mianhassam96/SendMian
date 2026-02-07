@@ -39,18 +39,20 @@ export async function POST(request: NextRequest) {
     // Try to store in database (optional)
     try {
       const { db } = await import('@/lib/db')
-      await db.file.create({
-        data: {
-          messageId: `local-${fileId}`,
-          roomId: 'public',
-          filename: filename,
-          originalName: file.name,
-          size: file.size,
-          mimeType: file.type || 'application/octet-stream',
-          url: publicUrl,
-          key: fileId,
-        }
-      })
+      if (db) {
+        await db.file.create({
+          data: {
+            messageId: `local-${fileId}`,
+            roomId: 'public',
+            filename: filename,
+            originalName: file.name,
+            size: file.size,
+            mimeType: file.type || 'application/octet-stream',
+            url: publicUrl,
+            key: fileId,
+          }
+        })
+      }
     } catch (dbError) {
       console.log('Database not available, file uploaded without metadata storage')
     }
