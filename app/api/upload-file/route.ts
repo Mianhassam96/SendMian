@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
 import { nanoid } from 'nanoid'
-
-// Store files in memory for Vercel deployment
-const fileStore = new Map<string, { buffer: Buffer; name: string; type: string; size: number }>()
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,28 +10,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'No file uploaded' }, { status: 400 })
     }
 
+    // Read file as array buffer
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Generate unique filename
+    // Generate unique ID
     const fileId = nanoid(12)
-    const extension = file.name.split('.').pop() || 'bin'
-    const filename = `${fileId}.${extension}`
     const mimeType = file.type || 'application/octet-stream'
 
-    // Store file in memory (works on Vercel)
-    fileStore.set(fileId, {
-      buffer,
-      name: file.name,
-      type: mimeType,
-      size: file.size
-    })
+    // Convert to base64 data URL (works perfectly on Vercel)
+    const base64 = buffer.toString('base64')
+    const dataUrl = `data:${mimeType};base64,${base64}`
 
-    // Create public URL using API route
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
-                    (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
-    const publicUrl = `${baseUrl}/api/files/${fileId}`
-
+    // Return the data URL as the public URL
     return NextResponse.json({
       success: true,
       file: {
@@ -44,7 +30,7 @@ export async function POST(request: NextRequest) {
         name: file.name,
         size: file.size,
         type: mimeType,
-        url: publicUrl,
+        url: dataUrl, // Data URL works everywhere, including Vercel
         key: fileId
       }
     })
@@ -52,11 +38,8 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Upload error:', error)
     return NextResponse.json(
-      { success: false, error: 'Upload failed' },
+      { success: false, error: error instanceof Error ? error.message : 'Upload failed' },
       { status: 500 }
     )
   }
 }
-
-// Export fileStore for use in file serving route
-export { fileStore }
