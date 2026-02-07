@@ -3,6 +3,9 @@ import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { nanoid } from 'nanoid'
 
+// Store files in memory for Vercel deployment
+const fileStore = new Map<string, { buffer: Buffer; name: string; type: string; size: number }>()
+
 export async function POST(request: NextRequest) {
   try {
     const data = await request.formData()
@@ -15,28 +18,24 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Use /tmp directory on Vercel (serverless environment)
-    // Note: Files in /tmp are temporary and will be cleared
-    const uploadsDir = join('/tmp', 'uploads')
-    try {
-      await mkdir(uploadsDir, { recursive: true })
-    } catch (error) {
-      // Directory might already exist
-    }
-
     // Generate unique filename
     const fileId = nanoid(12)
     const extension = file.name.split('.').pop() || 'bin'
     const filename = `${fileId}.${extension}`
-    const filepath = join(uploadsDir, filename)
-
-    // Write file to /tmp
-    await writeFile(filepath, buffer)
-
-    // Convert to base64 for inline serving (works on Vercel)
-    const base64 = buffer.toString('base64')
     const mimeType = file.type || 'application/octet-stream'
-    const dataUrl = `data:${mimeType};base64,${base64}`
+
+    // Store file in memory (works on Vercel)
+    fileStore.set(fileId, {
+      buffer,
+      name: file.name,
+      type: mimeType,
+      size: file.size
+    })
+
+    // Create public URL using API route
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+                    (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
+    const publicUrl = `${baseUrl}/api/files/${fileId}`
 
     return NextResponse.json({
       success: true,
@@ -45,7 +44,7 @@ export async function POST(request: NextRequest) {
         name: file.name,
         size: file.size,
         type: mimeType,
-        url: dataUrl, // Use data URL for immediate access
+        url: publicUrl,
         key: fileId
       }
     })
@@ -58,3 +57,6 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
+// Export fileStore for use in file serving route
+export { fileStore }
