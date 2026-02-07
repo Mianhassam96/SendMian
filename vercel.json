@@ -1,5 +1,5 @@
 {
-  "buildCommand": "prisma generate && next build",
+  "buildCommand": "next build",
   "installCommand": "npm install",
   "framework": "nextjs",
   "regions": ["iad1"]

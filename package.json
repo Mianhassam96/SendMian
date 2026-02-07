@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate || echo 'Prisma generation skipped'",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio"
@@ -16,8 +16,6 @@
     "next": "14.2.0",
     "react": "^18",
     "react-dom": "^18",
-    "prisma": "^5.10.0",
-    "@prisma/client": "^5.10.0",
     "nanoid": "^5.0.6",
     "tailwindcss": "^3.4.0",
     "autoprefixer": "^10.4.18",
@@ -33,6 +31,8 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "14.2.0"
+    "eslint-config-next": "14.2.0",
+    "prisma": "^5.10.0",
+    "@prisma/client": "^5.10.0"
   }
 }

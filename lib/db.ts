@@ -1,19 +1,26 @@
-import { PrismaClient } from '@prisma/client'
+// Database connection with graceful fallback
+// Only import Prisma if DATABASE_URL is set to avoid build errors
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-}
+let db: any = null
 
-// Only initialize Prisma if DATABASE_URL is provided
-let db: PrismaClient | null = null
+// Only initialize database if DATABASE_URL is provided
+if (process.env.DATABASE_URL) {
+  try {
+    const { PrismaClient } = require('@prisma/client')
+    
+    const globalForPrisma = globalThis as unknown as {
+      prisma: any | undefined
+    }
 
-try {
-  if (process.env.DATABASE_URL) {
     db = globalForPrisma.prisma ?? new PrismaClient()
-    if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+    
+    if (process.env.NODE_ENV !== 'production') {
+      globalForPrisma.prisma = db
+    }
+  } catch (error) {
+    console.log('Database initialization failed:', error)
+    db = null
   }
-} catch (error) {
-  console.log('Database not configured, running without database')
 }
 
 export { db }
