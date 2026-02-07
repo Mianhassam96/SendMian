@@ -15,8 +15,9 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads')
+    // Use /tmp directory on Vercel (serverless environment)
+    // Note: Files in /tmp are temporary and will be cleared
+    const uploadsDir = join('/tmp', 'uploads')
     try {
       await mkdir(uploadsDir, { recursive: true })
     } catch (error) {
@@ -29,16 +30,13 @@ export async function POST(request: NextRequest) {
     const filename = `${fileId}.${extension}`
     const filepath = join(uploadsDir, filename)
 
-    // Write file
+    // Write file to /tmp
     await writeFile(filepath, buffer)
 
-    // Create public URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const publicUrl = `${baseUrl}/uploads/${filename}`
-
-    // Note: Database storage removed for Vercel deployment
-    // Files are stored in /tmp on Vercel (temporary storage)
-    // For production, consider using cloud storage (S3, Cloudinary, etc.)
+    // Convert to base64 for inline serving (works on Vercel)
+    const base64 = buffer.toString('base64')
+    const mimeType = file.type || 'application/octet-stream'
+    const dataUrl = `data:${mimeType};base64,${base64}`
 
     return NextResponse.json({
       success: true,
@@ -46,8 +44,8 @@ export async function POST(request: NextRequest) {
         id: fileId,
         name: file.name,
         size: file.size,
-        type: file.type || 'application/octet-stream',
-        url: publicUrl,
+        type: mimeType,
+        url: dataUrl, // Use data URL for immediate access
         key: fileId
       }
     })
