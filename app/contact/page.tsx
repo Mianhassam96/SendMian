@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card'
-import { Send, Mail, MessageSquare, Github, Twitter, Linkedin } from 'lucide-react'
+import { Send, Mail, MessageSquare, Github, Linkedin, Facebook } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ContactPage() {

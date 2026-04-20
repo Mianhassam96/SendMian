@@ -1,27 +1,22 @@
 import { NextResponse } from 'next/server'
+import { readFile } from 'fs/promises'
+import { existsSync } from 'fs'
+import path from 'path'
+
+const STATS_FILE = path.join(process.cwd(), 'data', 'stats.json')
 
 export async function GET() {
   try {
-    // Return fallback stats since database is not configured
-    // In production, you can connect a database and track real stats
+    let stats = { totalFiles: 0, totalSize: 0 }
+    if (existsSync(STATS_FILE)) {
+      const raw = await readFile(STATS_FILE, 'utf-8')
+      stats = JSON.parse(raw)
+    }
+    return NextResponse.json({ success: true, stats: { ...stats, recentFiles: [] } })
+  } catch {
     return NextResponse.json({
       success: true,
-      stats: {
-        totalFiles: 1247,
-        totalSize: 2847392847, // ~2.65 GB
-        recentFiles: []
-      }
-    })
-  } catch (error) {
-    console.error('Stats error:', error)
-    
-    return NextResponse.json({
-      success: true,
-      stats: {
-        totalFiles: 0,
-        totalSize: 0,
-        recentFiles: []
-      }
+      stats: { totalFiles: 0, totalSize: 0, recentFiles: [] }
     })
   }
 }

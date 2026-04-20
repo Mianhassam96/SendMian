@@ -1,5 +1,3 @@
-// Database connection - Currently disabled for Vercel deployment
-// App works without database, using file system storage only
-// To enable database: Install Prisma and configure DATABASE_URL
-
+// Database is not configured. File metadata is tracked via data/stats.json.
+// To enable a database, install Prisma, configure DATABASE_URL, and replace this file.
 export const db = null

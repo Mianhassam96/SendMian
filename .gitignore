@@ -40,3 +40,6 @@ next-env.d.ts
 # Uploads (don't commit uploaded files)
 /public/uploads/*
 !/public/uploads/.gitkeep
+
+# Stats data (runtime generated)
+/data/stats.json
